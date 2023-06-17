@@ -18,6 +18,7 @@ import {
 } from "@usedapp/core";
 import { PolyverseProvider } from "./context/Auth";
 import { ProtocolProvider } from "./context";
+import { ToastContainer } from "react-toastify";
 
 interface Context {
   runtimeConnector: RuntimeConnector;
@@ -46,6 +47,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       <PolyverseProvider>
         <ProtocolProvider>
           <App />
+          <ToastContainer />
         </ProtocolProvider>
       </PolyverseProvider>
     </LivepeerConfig>

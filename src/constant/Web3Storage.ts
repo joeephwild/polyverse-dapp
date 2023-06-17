@@ -7,7 +7,7 @@ const accessToken =
 // Create a web3.storage client object
 const client = new Web3Storage({ token: accessToken });
 
-async function uploadJsonData(data) {
+async function uploadJsonData(data: any) {
   try {
     const jsonBlob = new Blob([JSON.stringify(data)], {
       type: "application/json",
@@ -21,16 +21,23 @@ async function uploadJsonData(data) {
     // Upload the data and files to web3.storage
     const cid = await client.put(files);
     console.log("Uploaded data with CID:", cid);
+    return cid;
   } catch (error) {
     console.error("Error uploading data:", error);
   }
 }
 
-async function uploadFile(selectedFiles) {
+async function uploadFile(selectedFiles: any) {
   try {
-    const cid = await client.put(selectedFiles);
-    console.log("Uploaded files with CID:", cid);
-    alert("Files uploaded successfully!");
+    if (selectedFiles) {
+      try {
+        const cid = await client.put([selectedFiles]);
+        console.log('Uploaded image with CID:', cid);
+        return cid
+      } catch (error) {
+        console.error('Error uploading image:', error);
+      }
+    }
   } catch (error) {
     console.error("Error uploading files:", error);
     alert("Error uploading files. Please try again.");

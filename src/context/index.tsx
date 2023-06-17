@@ -3,7 +3,7 @@ import React from "react";
 import { ENV } from "@pushprotocol/restapi/src/lib/constants";
 import { Mumbai } from "@usedapp/core";
 import { useAddress, useMetamask, useSigner } from "@thirdweb-dev/react";
-import { ToastContainer, toast } from "react-toastify";
+import {  toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import * as PushAPI from "@pushprotocol/restapi";
 import { useLocalStorage } from "react-use";
@@ -60,13 +60,11 @@ export const ProtocolProvider = ({ children }: ProtocolNode) => {
   }, [address]);
 
   const handleSubscribeSuccess = () => {
-    setSubscribed(true);
     setStoredSubscribed(true);
     toast.success("Successfully subscribed!");
   };
 
   const handleUnsubscribeSuccess = () => {
-    setSubscribed(false);
     setStoredSubscribed(false);
     toast.success("Successfully unsubscribed!");
   };
@@ -110,7 +108,7 @@ export const ProtocolProvider = ({ children }: ProtocolNode) => {
       }}
     >
       {children}
-      <ToastContainer />
+    
     </ProtocolContext.Provider>
   );
 };

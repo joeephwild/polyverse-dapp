@@ -4,14 +4,22 @@ import { usePolyverseContext } from "../context/Auth";
 import { pen, upload } from "../assets";
 import { AiOutlineCamera } from "react-icons/ai";
 import { useAddress } from "@thirdweb-dev/react";
+import { uploadFile, uploadJsonData } from "../constant/Web3Storage";
+import { toast } from "react-toastify";
+import { ethers } from "ethers";
+import { useNavigate } from "react-router-dom";
 
 const ProfileForm = () => {
   const address = useAddress();
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const { addCreator } = usePolyverseContext()
-  const [profileImage, setProfileImage] = useState("")
-  const [name, setName] = useState("")
-
+  const { addCreator, createPlan } = usePolyverseContext();
+  const [profileImage, setProfileImage] = useState("");
+  const [name, setName] = useState("");
+  const [categories, setCategories] = useState("");
+  const [bio, setBio] = useState("");
+  const [price, setPrice] = useState("");
+  const [data, setData] = useState("");
+  const [isLoading, setIsloading] = useState(false);
+  const router = useNavigate();
 
   const category = [
     {
@@ -28,10 +36,37 @@ const ProfileForm = () => {
     },
   ];
 
-  const handleImageUpload = async (e: any) => {
-    e.preventDefault();
-    addCreator("hhhgghgjg", 8)
+  const handleImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target?.files?.[0];
+    const cid = await uploadFile(file);
+    const path = `https://${cid}.ipfs.w3s.link`;
+    toast.success("upload sucessfull");
+    console.log(path);
+    setProfileImage(path);
+  };
 
+  const handleUpload = async (e: any) => {
+    e.preventDefault();
+    const amount = ethers.utils.parseEther(price);
+    try {
+      const obj = {
+        name: name,
+        bio: bio,
+        image: profileImage,
+        catefory: categories,
+        subFee: amount,
+      };
+      setIsloading(true);
+      const result = await uploadJsonData(obj);
+      await addCreator(result, amount);
+      toast.success("Creator been added");
+      await createPlan(name, amount);
+      toast.success("Subscription plan initialized");
+      setIsloading(false);
+      router("/dashboard");
+    } catch (error) {
+      toast.error("Transaction failed pls try again later");
+    }
   };
 
   return (
@@ -40,7 +75,7 @@ const ProfileForm = () => {
       <form action="" className="w-full">
         <div className="flex flex-col mt-[20px] space-y-4 items-center">
           <div className="relative cursor-pointer">
-            <img src={upload} alt="upload" />
+            <img src={!profileImage ? upload : profileImage} alt="upload" />
 
             <AiOutlineCamera
               size={25}
@@ -58,13 +93,38 @@ const ProfileForm = () => {
 
         {/* form section */}
         <div className="flex  w-full  flex-wrap mt-[30px] item-center space-y-5">
-          <FormField title="Profile Image" isFile />
-          <FormField title="Name" isInput />
-          <FormField title="Category" item={category} isCategory />
-          <FormField title="Subscription Fee" type="number" isInput />
-          <FormField title="Bio" isTextArea />
+          <FormField title="Profile Image" handleChange={handleImage} isFile />
+          <FormField
+            title="Name"
+            isInput
+            value={name}
+            handleChange={(e: any) => setName(e.target.value)}
+          />
+          <FormField
+            title="Category"
+            item={category}
+            isCategory
+            value={categories}
+            handleChange={(e: any) => setCategories(e.target.value)}
+          />
+          <FormField
+            title="Subscription Fee"
+            type="number"
+            isInput
+            value={price}
+            handleChange={(e: any) => setPrice(e.target.value)}
+          />
+          <FormField
+            title="Bio"
+            isTextArea
+            value={bio}
+            handleChange={(e) => setBio(e.target.value)}
+          />
           <div className="flex items-center justify-center w-full">
-            <button onClick={handleImageUpload} className="bg-gradient-to-r from-[#513EFF] to-[#52E5FF] px-8 py-2.5 rounded-full border border-black">
+            <button
+              onClick={handleUpload}
+              className="bg-gradient-to-r from-[#513EFF] to-[#52E5FF] px-8 py-2.5 rounded-full border border-black"
+            >
               Save
             </button>
           </div>

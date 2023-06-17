@@ -9,6 +9,8 @@ interface Props {
   isHidden?: boolean;
   isTextArea?: boolean;
   isFile?: boolean;
+  value?: any;
+  handleChange?:((e: any) => void) | undefined;
 }
 
 const FormField = ({
@@ -20,6 +22,8 @@ const FormField = ({
   isHidden,
   isTextArea,
   isFile,
+  value,
+  handleChange,
 }: Props) => {
   return (
     <label className="space-y-2 flex-col flex items-start w-full" htmlFor="">
@@ -28,12 +32,15 @@ const FormField = ({
       </span>
       {isInput && (
         <input
+          value={value}
+          onChange={handleChange}
           type={type}
           className="w-full border-2 rounded-[10px] text-black border-[#C4C4C4] outline-none focus:outline-none px-4 py-2.5"
         />
       )}
       {isFile && (
         <input
+          onChange={handleChange}
           type="file"
           name="file_upload"
           className="w-full border-2 rounded-[10px] text-black border-[#C4C4C4] outline-none focus:outline-none px-4 py-1"
@@ -41,6 +48,8 @@ const FormField = ({
       )}
       {isTextArea && (
         <textarea
+          onChange={handleChange}
+          value={value}
           rows={3}
           className="w-full border-2 rounded-[10px]  text-black border-[#C4C4C4] outline-none focus:outline-none px-4 py-2.5"
         />
@@ -48,6 +57,8 @@ const FormField = ({
 
       {isCategory && (
         <select
+        onChange={handleChange}
+          value={value}
           className={`min-w-full block outline-none text-black border-[#C4C4C4] border text-Foundation bg-transparent px-4 py-2.5 rounded-[10px]`}
         >
           {item?.map((cate, i) => (
