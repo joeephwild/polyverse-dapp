@@ -5,6 +5,7 @@ import {
   WALLET,
 } from "@dataverse/runtime-connector";
 import { Polyverse, PolyverseABI } from "../constant/Filecoin";
+import { useContract, useContractWrite } from "@thirdweb-dev/react";
 
 interface TradeVerseNode {
   children: React.ReactNode;
@@ -13,7 +14,7 @@ interface TradeVerseNode {
 interface PolyverseContextType {
   address: string;
   setAddress: React.Dispatch<React.SetStateAction<string>>;
-  createCreator: (data: string, amount: number) => Promise<void>;
+  addCreator: (data: string, amount: number) => Promise<void>;
 }
 
 const PolyverseContext = createContext<PolyverseContextType | null>(null);
@@ -21,26 +22,14 @@ const PolyverseContext = createContext<PolyverseContextType | null>(null);
 export const PolyverseProvider = ({ children }: TradeVerseNode) => {
   const [address, setAddress] = useState("");
   const runtimeConnector = new RuntimeConnector(Extension);
+  
+  const { contract } = useContract("0x2f40a1f04be1a7d87e3651AD23F62B97B14D9C57");
+  const { mutateAsync: addCreator, isLoading } = useContractWrite(contract, "addCreator")
 
-  useEffect(() => {
-    const getAddress = async () => {
-      const wallet = await runtimeConnector.connectWallet(WALLET.METAMASK);
-      setAddress(wallet.address);
-      await runtimeConnector.switchNetwork(314159);
-      await runtimeConnector.checkCapability();
-    };
-    getAddress();
-  }, []);
-
-  const createCreator = async (data: string, amount: number) => {
+  const createCreator = async (_creatorData: string, _subscriptionFee: number) => {
     try {
-      await runtimeConnector.connectWallet(WALLET.METAMASK);
-      await runtimeConnector.contractCall({
-        contractAddress: Polyverse,
-        abi: PolyverseABI,
-        method: "addCreator",
-        params: [data, amount],
-      });
+      const data = await addCreator({ args: [_creatorData, _subscriptionFee] });
+      console.info("contract call successs", data);
     } catch (error) {
       alert(error);
     }
@@ -55,7 +44,7 @@ export const PolyverseProvider = ({ children }: TradeVerseNode) => {
   }, []);
 
   return (
-    <PolyverseContext.Provider value={{ address, setAddress, createCreator }}>
+    <PolyverseContext.Provider value={{ address, setAddress, addCreator: createCreator}}>
       {children}
     </PolyverseContext.Provider>
   );

@@ -8,6 +8,7 @@ interface Props {
   item?: { title: string; value: string }[];
   isHidden?: boolean;
   isTextArea?: boolean;
+  isFile?: boolean;
 }
 
 const FormField = ({
@@ -18,20 +19,29 @@ const FormField = ({
   item,
   isHidden,
   isTextArea,
+  isFile,
 }: Props) => {
   return (
     <label className="space-y-2 flex-col flex items-start w-full" htmlFor="">
-      <span className="text-[#3A3A3A] font-bold font-Inter-Bold w-full text-[12px] ">{title}</span>
+      <span className="text-[#3A3A3A] font-bold font-Inter-Bold w-full text-[12px] ">
+        {title}
+      </span>
       {isInput && (
         <input
           type={type}
           className="w-full border-2 rounded-[10px] text-black border-[#C4C4C4] outline-none focus:outline-none px-4 py-2.5"
         />
       )}
-
+      {isFile && (
+        <input
+          type="file"
+          name="file_upload"
+          className="w-full border-2 rounded-[10px] text-black border-[#C4C4C4] outline-none focus:outline-none px-4 py-1"
+        />
+      )}
       {isTextArea && (
         <textarea
-          rows={5}
+          rows={3}
           className="w-full border-2 rounded-[10px]  text-black border-[#C4C4C4] outline-none focus:outline-none px-4 py-2.5"
         />
       )}

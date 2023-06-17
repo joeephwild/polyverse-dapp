@@ -10,11 +10,14 @@ import {
   studioProvider,
 } from "@livepeer/react";
 import { ThirdwebProvider } from "@thirdweb-dev/react";
-
-import { ModalProvider } from "@particle-network/connect-react-ui";
-import { WalletEntryPosition } from "@particle-network/auth";
-import { Ethereum, EthereumGoerli } from "@particle-network/common";
+import {
+  useEthers,
+  useEtherBalance,
+  DAppProvider,
+  Mumbai,
+} from "@usedapp/core";
 import { PolyverseProvider } from "./context/Auth";
+import { ProtocolProvider } from "./context";
 
 interface Context {
   runtimeConnector: RuntimeConnector;
@@ -38,10 +41,12 @@ const livepeerTheme: ThemeConfig = {
 };
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <ThirdwebProvider activeChain="ethereum">
+  <ThirdwebProvider activeChain="mumbai">
     <LivepeerConfig client={client} theme={livepeerTheme}>
       <PolyverseProvider>
-        <App />
+        <ProtocolProvider>
+          <App />
+        </ProtocolProvider>
       </PolyverseProvider>
     </LivepeerConfig>
   </ThirdwebProvider>

@@ -1,19 +1,22 @@
 import React, { useState } from "react";
-import { logo } from "../assets";
-import { RuntimeConnector, Extension } from "@dataverse/runtime-connector";
 import { Link } from "react-router-dom";
-import { usePolyverseContext } from "../context/Auth";
-import { WALLET } from "@dataverse/runtime-connector";
-import { ethers } from "ethers";
-import { useAddress, useMetamask } from "@thirdweb-dev/react";
-import { Polygon } from "@thirdweb-dev/chains";
+import { useAddress, useMetamask, useSigner } from "@thirdweb-dev/react";
+import * as PushAPI from "@pushprotocol/restapi";
+import { FaBell } from "react-icons/fa";
 
-const runtimeConnector = new RuntimeConnector(Extension);
-const app = "Polyverse";
+// any other web3 ui lib is also acceptable
+import { useWeb3React } from "@web3-react/core";
 
-const Navbar = () => {
-  const connect = useMetamask()
-  const address = useAddress()
+import { logo } from "../assets";
+import { ENV } from "@pushprotocol/restapi/src/lib/constants";
+import { Mumbai } from "@usedapp/core";
+import { useProtocolContext } from "../context";
+
+const Navbar: React.FC = () => {
+  const connect = useMetamask();
+  const address = useAddress();
+const {subscribeToNotification, subscribed} = useProtocolContext()
+
   return (
     <nav className="w-full flex items-center h-16 justify-between px-12 py-6.5 border-b border-[#ffffff]">
       <Link to="/">
@@ -26,22 +29,26 @@ const Navbar = () => {
         <li>Files</li>
       </ul>
 
-      {!address && (
+      <div className=" flex items-center space-x-4">
         <button
-          onClick={() => connect({
-            chainId: 314159
-          })}
+        onClick={subscribeToNotification}
+        className={`${subscribed ? "text-blue-700" :  "text-white"} text-xl `}
+        >
+          <FaBell />
+        </button>
+        <button
+          onClick={() =>
+            connect({
+              chainId: Mumbai.chainId,
+            })
+          }
           className="border-2 border-[#fff] px-6 py-1.5 rounded-full text-[#fff] font-medium text-[16px]"
         >
-          Connect Wallet
+          {!address
+            ? "Connect Wallet"
+            : `${address.slice(0, 9)}...${address.slice(36, 45)}`}
         </button>
-      )}
-
-      {address && (
-        <button className="border-2 border-[#fff] px-6 py-1.5 rounded-full text-[#fff] font-medium text-[16px]">
-          {address.slice(0, 9)}...
-        </button>
-      )}
+      </div>
     </nav>
   );
 };
