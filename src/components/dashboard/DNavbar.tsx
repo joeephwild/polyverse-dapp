@@ -86,7 +86,7 @@ const DNavbar = () => {
                 </button>
               </div>
               <span className="text-center items-center flex justify-center mb-5 text-[20px] font-semibold">
-                {userBalance} PVT
+                {Number(userBalance)} PVT
               </span>
               <button
                 onClick={() => setOpenModals(true)}

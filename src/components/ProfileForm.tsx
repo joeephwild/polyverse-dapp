@@ -8,11 +8,12 @@ import { uploadFile, uploadJsonData } from "../constant/Web3Storage";
 import { toast } from "react-toastify";
 import { ethers } from "ethers";
 import { useNavigate } from "react-router-dom";
+import { CIDString } from "web3.storage";
 
 const ProfileForm = () => {
   const address = useAddress();
   const { addCreator, createPlan } = usePolyverseContext();
-  const [profileImage, setProfileImage] = useState("");
+  const [profileImage, setProfileImage] = useState<CIDString | undefined>();
   const [name, setName] = useState("");
   const [categories, setCategories] = useState("");
   const [bio, setBio] = useState("");
@@ -39,10 +40,9 @@ const ProfileForm = () => {
   const handleImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target?.files?.[0];
     const cid = await uploadFile(file);
-    const path = `https://${cid}.ipfs.w3s.link`;
     toast.success("upload sucessfull");
-    console.log(path);
-    setProfileImage(path);
+    console.log(cid);
+    setProfileImage(cid);
   };
 
   const handleUpload = async (e: any) => {
@@ -69,13 +69,21 @@ const ProfileForm = () => {
     }
   };
 
+  const getProfileImageUrl = () => {
+    if (profileImage) {
+      const ipfsUrl = `https://ipfs.io/ipfs/${profileImage}`;
+      return ipfsUrl;
+    }
+    return upload;
+  };
+
   return (
     <div className="max-w-[458px] rounded-[10px] items-center justify-center flex flex-col px-6 py-[10px] bg-[#fff]">
       {/* image upload */}
       <form action="" className="w-full">
         <div className="flex flex-col mt-[20px] space-y-4 items-center">
           <div className="relative cursor-pointer">
-            <img src={!profileImage ? upload : profileImage} alt="upload" />
+          <img src={getProfileImageUrl()} alt="upload" />
 
             <AiOutlineCamera
               size={25}

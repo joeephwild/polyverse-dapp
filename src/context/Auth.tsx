@@ -33,14 +33,14 @@ interface PolyverseContextType {
 const PolyverseContext = createContext<PolyverseContextType | null>(null);
 
 export const PolyverseProvider = ({ children }: TradeVerseNode) => {
-  const address = useAddress()
+  const address = useAddress();
   const [userBalance, setUserBalance] = useState("");
   const runtimeConnector = new RuntimeConnector(Extension);
 
   //const { contract } = useContract();
-  const polyverse = returnContract(Polyverse);
+  const polyverse = returnContract("0xc1A2Be0Efeb0db1b2cc587752CAc57Ccf199A411");
   const PolyverseSubscription = returnContract(SubscriptionContract);
-  const Token = returnContract(PolyverseToken);
+  const Token = returnContract("0xAd12633ce674e9825cf8a7eE2Fe5D7D9C82685E9");
 
   const { mutateAsync: addCreator } = useContractWrite(polyverse, "addCreator");
 
@@ -91,19 +91,22 @@ export const PolyverseProvider = ({ children }: TradeVerseNode) => {
   const getUserBalance = async () => {
     try {
       const data = await Token?.call(
-        "getUserBalance", // Name of your function as it is on the smart contract
+        "balanceOf", // Name of your function as it is on the smart contract
         [address]
       );
       console.info("contract call successs", data);
       setUserBalance(data);
     } catch (err) {
+      alert(err);
       console.error("contract call failure", err);
     }
   };
 
   useEffect(() => {
-    getUserBalance();
-  }, [address]);
+    if (Token) {
+      getUserBalance();
+    }
+  }, [Token, address]);
 
   return (
     <PolyverseContext.Provider

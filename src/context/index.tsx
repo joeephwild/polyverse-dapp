@@ -3,7 +3,7 @@ import React from "react";
 import { ENV } from "@pushprotocol/restapi/src/lib/constants";
 import { Mumbai } from "@usedapp/core";
 import { useAddress, useMetamask, useSigner } from "@thirdweb-dev/react";
-import {  toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import * as PushAPI from "@pushprotocol/restapi";
 import { useLocalStorage } from "react-use";
@@ -25,7 +25,7 @@ interface PushType {
 
 interface PolyverseContextType {
   subscribed: boolean | undefined;
-  //setSubscribed: React.Dispatch<React.SetStateAction<boolean>>;
+  sendNotification: (title: string, body: string, type?: number) => Promise<void>
   subscribeToNotification: () => Promise<void>;
 }
 
@@ -73,7 +73,7 @@ export const ProtocolProvider = ({ children }: ProtocolNode) => {
     if (signer && address) {
       if (!subscribed) {
         const subscribe = await PushAPI.channels.subscribe({
-          signer: signer ,
+          signer: signer,
           channelAddress: `eip155:5:${yourChannel}`, // channel address in CAIP
           userAddress: `eip155:5:${address}`, // user address in CAIP
           onSuccess: handleSubscribeSuccess,
@@ -100,15 +100,41 @@ export const ProtocolProvider = ({ children }: ProtocolNode) => {
       });
     }
   };
+
+  const sendNotification = async (title: string, body: string, type?: number) => {
+    try {
+      const apiResponse = await PushAPI.payloads.sendNotification({
+        signer: signer,
+        type: 3, 
+        identityType: 2,
+        notification: {
+          title: `${title}`,
+          body: `${body}`,
+        },
+        payload: {
+          title: `${title}`,
+          body: `${body}`,
+          cta: "",
+          img: "",
+        },
+        recipients: `eip155:5:${address}`, 
+        channel: "eip155:5:0x4946a945aB5d49fa59E81A00Bb9d6677E0fcB8B4", // your channel address
+        env: ENV.STAGING,
+      });
+      console.log(apiResponse.data)
+    } catch (err) {
+      console.error("Error: ", err);
+    }
+  };
   return (
     <ProtocolContext.Provider
       value={{
         subscribed,
         subscribeToNotification,
+        sendNotification
       }}
     >
       {children}
-    
     </ProtocolContext.Provider>
   );
 };

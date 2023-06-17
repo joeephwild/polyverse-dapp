@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Modal from "react-responsive-modal";
 import FormField from "./FormField";
 import { usePolyverseContext } from "../context/Auth";
+import { useProtocolContext } from "../context";
 
 interface Props {
   onClose: () => void;
@@ -14,19 +15,16 @@ interface Props {
 const Fund = ({ onClose, openModal, setModalOpen, modalOpen }: Props) => {
   const [inputAddress, setInputAddress] = useState("");
   const [inputAmount, setInputAmount] = useState(0);
-  const {mint} = usePolyverseContext()
+  const { mint } = usePolyverseContext();
+  const { sendNotification } = useProtocolContext();
 
-  const handleAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputAddress(event.target.value);
-  };
-
-  const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputAmount(event.target.value);
-  };
-
-  const handleFormSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-     await mint(inputAmount)
+    await mint(inputAmount);
+    sendNotification(
+      "Token sent Succesfully",
+      `${inputAmount.toString()} PVT sent to you`
+    );
   };
 
   return (
@@ -34,15 +32,9 @@ const Fund = ({ onClose, openModal, setModalOpen, modalOpen }: Props) => {
       <h2>Add Funds</h2>
       <form onSubmit={handleFormSubmit}>
         <FormField
-          title="Address"
-          value={inputAddress}
-          handleChange={handleAddressChange}
-          isInput
-        />
-        <FormField
           title="Amount"
           value={inputAmount}
-          handleChange={handleAmountChange}
+          handleChange={(e) => setInputAmount(e.target.value)}
           isInput
         />
         <button className="border-2 border-blue-700 px-6 py-1.5 rounded-full text-[#000] mt-6 items-center justify flex font-medium text-[16px]">
